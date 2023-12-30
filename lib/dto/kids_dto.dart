@@ -105,14 +105,14 @@ class Items {
   String? pfctSn;
   String? pfctNm;
   String? zip;
-  Null? lotnoAddr;
-  Null? lotnoDaddr;
+  String? lotnoAddr;
+  String? lotnoDaddr;
   String? ronaAddr;
-  Null? ronaDaddr;
+  String? ronaDaddr;
   String? instlYmd;
-  Null? clsgYmd;
+  String? clsgYmd;
   String? acptnYmd;
-  Null? etcSufa;
+  String? etcSufa;
   String? exfcYn;
   String? fcar;
   String? instlPlaceCd;
@@ -125,7 +125,7 @@ class Items {
   String? operYnCdNm;
   String? idrodrCd;
   String? idrodrCdNm;
-  Null? exfcDsgnYmd;
+  String? exfcDsgnYmd;
   String? rgnCd;
   String? rgnCdNm;
   String? latCrtsVl;

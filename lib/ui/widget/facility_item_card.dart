@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:kids_facility_search_app/model/kids_model.dart';
+import 'package:kids_facility_search_app/dto/kids_dto.dart';
 
 class FacilityCard extends StatelessWidget {
   const FacilityCard({super.key, required this.facilityItem});
 
-  final KidsFacilityItemModel facilityItem;
+  final Items facilityItem;
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +31,10 @@ class FacilityCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${facilityItem.title} (${facilityItem.inOutdoor})',
+                Text('${facilityItem.pfctNm} (${facilityItem.idrodrCdNm})',
                   style: const TextStyle(fontSize: 17, color: Colors.black),
                 ),
-                Text('[${facilityItem.zipNum}] ${facilityItem.address}',
+                Text('[${facilityItem.zip}] ${facilityItem.ronaAddr}',
                   style: const TextStyle(fontSize: 15, color: Colors.grey),
                 ),
               ],
