@@ -1,10 +1,6 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 import 'package:cool_dropdown/controllers/dropdown_controller.dart';
 import 'package:cool_dropdown/cool_dropdown.dart';
 import 'package:flutter/material.dart';
-import 'package:kids_facility_search_app/dto/kids_dto.dart';
 import 'package:kids_facility_search_app/ui/widget/facility_item_card.dart';
 import 'package:kids_facility_search_app/viewmodel/kids_viewmodel.dart';
 
@@ -19,43 +15,6 @@ class _MainPageState extends State<MainPage> {
   final facilityDropdownController = DropdownController();
   final viewModel = ViewModel();
   var selected = '';
-
-  List<Items> _facilitiesResults = [];
-  int currentPage = 1;
-  int _totalCount = 0;
-  int _totalPage = 0;
-
-  Future<void> getKidsFacilityResults(
-      int currentPage, String facilityCode) async {
-    const serviceKey =
-        '2pf%2BeRBua6cRJWoNe8YetUzxBOWoceYzC693Iy4JoYEjtXtyjv5oREtSf31IlQSsy8qo6mvUV0yuRTD7McmPKw%3D%3D';
-    final response = await http.get(Uri.parse(
-        'https://apis.data.go.kr/1741000/pfc2/pfc/getPfctInfo2?serviceKey=$serviceKey&pageIndex=$currentPage&recordCountPerPage=10&instlPlaceCd=$facilityCode'));
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      final List<dynamic> facilitiesList = data['response']['body']['items'];
-      final totalCount = data['response']['body']['totalCnt'];
-      final pageCount = data['response']['body']['totalPageCnt'];
-
-      List<Items> results = [];
-      for (var facility in facilitiesList) {
-        results.add(Items.fromJson(facility));
-      }
-      setState(() {
-        _facilitiesResults = results;
-        _totalCount = totalCount;
-        _totalPage = pageCount;
-      });
-    } else {
-      throw Exception('Failed to load address results');
-    }
-  }
-
-  @override
-  void dispose() {
-    facilityDropdownController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,14 +49,9 @@ class _MainPageState extends State<MainPage> {
                           dropdownList: viewModel.facilityDropdownItems,
                           defaultItem: null,
                           onChange: (value) async {
-                            if (facilityDropdownController.isError) {
-                              await facilityDropdownController.resetError();
-                            }
+                            await viewModel.searchFacilities(1, value);
+                            selected = value;
                             facilityDropdownController.close();
-                            setState(() {
-                              selected = value;
-                              getKidsFacilityResults(1, selected);
-                            });
                           },
                           onOpen: (value) {},
                           resultOptions: const ResultOptions(
@@ -143,41 +97,62 @@ class _MainPageState extends State<MainPage> {
                   ],
                 ),
               ),
-              Expanded(
-                flex: 5,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: _facilitiesResults.length,
-                  itemBuilder: (context, index) {
-                    final facilityResult = _facilitiesResults[index];
-                    return FacilityCard(facilityItem: facilityResult);
-                  },
-                ),
+              Container(
+                height: 20,
               ),
               Expanded(
-                flex: 1,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _totalPage,
-                  itemBuilder: (context, index) {
-                    return TextButton(
-                      onPressed: () {
-                        String selectedValue = selected;
-                        getKidsFacilityResults(index + 1, selectedValue);
-                      },
-                      child: Text('${index + 1}',
-                          style: const TextStyle(
-                              fontSize: 18, fontFamily: 'Dohyeon')),
+                flex: 6,
+                child: StreamBuilder<bool>(
+                  initialData: false,
+                  stream: viewModel.loadingController,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == true) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: viewModel.facilitiesResults.length,
+                            itemBuilder: (context, index) {
+                              final facilityResult =
+                                  viewModel.facilitiesResults[index];
+                              return FacilityCard(facilityItem: facilityResult);
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: viewModel.totalPage,
+                            itemBuilder: (context, index) {
+                              return TextButton(
+                                onPressed: () async {
+                                  await viewModel.searchFacilities(
+                                      index + 1, selected);
+                                },
+                                child: Text('${index + 1}',
+                                    style: const TextStyle(
+                                        fontSize: 18, fontFamily: 'Dohyeon')),
+                              );
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(
+                            '검색결과: ${viewModel.totalCount}',
+                            style: const TextStyle(fontFamily: 'Dohyeon'),
+                          ),
+                        ),
+                      ],
                     );
                   },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Text(
-                  '검색결과: $_totalCount',
-                  style: const TextStyle(fontFamily: 'Dohyeon'),
                 ),
               ),
             ],
