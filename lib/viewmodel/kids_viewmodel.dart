@@ -1,10 +1,19 @@
 import 'dart:async';
 
 import 'package:cool_dropdown/models/cool_dropdown_item.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:kids_facility_search_app/model/facility_model.dart';
 import 'package:kids_facility_search_app/repository/facility_repository.dart';
 
-final class ViewModel {
+class ViewModel extends ChangeNotifier {
+  final KidsFacilityItemsRepository _repository;
+
+
+
+  ViewModel({
+    required KidsFacilityItemsRepository repository,
+  }) : _repository = repository;
+
   List<CoolDropdownItem<String>> facilityDropdownItems = [];
   Map<String, String> facilities = {
     '목욕장업소': 'A001',
@@ -29,23 +38,9 @@ final class ViewModel {
   };
   List<String> facilitiesName = [];
   List _searchResults = [];
+  bool _isLoading = false;
 
-  List<KidsFacilityItemModel> _facilitiesResults = [];
-  int _totalCount = 0;
-  int _totalPage = 0;
-  final _loadingController = StreamController<bool>();
-
-  List get searchResults => _searchResults;
-
-  List<KidsFacilityItemModel> get facilitiesResults => _facilitiesResults;
-
-  int get totalCount => _totalCount;
-
-  int get totalPage => _totalPage;
-
-  Stream<bool> get loadingController => _loadingController.stream;
-
-  ViewModel() {
+  selectList() {
     facilitiesName = facilities.keys.toList();
     for (var i = 0; i < facilitiesName.length; i++) {
       facilityDropdownItems.add(CoolDropdownItem<String>(
@@ -71,11 +66,26 @@ final class ViewModel {
     }
   }
 
-  final _repository = KidsFacilityItemsRepository();
+  List<KidsFacilityItemModel> _facilitiesResults = [];
+  int _totalCount = 0;
+  int _totalPage = 0;
+
+  List get searchResults => _searchResults;
+
+  List<KidsFacilityItemModel> get facilitiesResults => _facilitiesResults;
+
+  int get totalCount => _totalCount;
+
+  int get totalPage => _totalPage;
+
+  bool get isLoading => _isLoading;
+
 
   Future<void> searchFacilities(int currentPage, String facilityCode) async {
     //화면갱신
-    _loadingController.add(true);
+    _isLoading = true;
+    notifyListeners();
+
     _searchResults =
         await _repository.getFacilityItems(currentPage, facilityCode);
     _facilitiesResults = _searchResults[0];
@@ -83,6 +93,7 @@ final class ViewModel {
     _totalCount = _searchResults[1].totalCount;
 
     //다시 화면갱신
-    _loadingController.add(false);
+    _isLoading = false;
+    notifyListeners();
   }
 }

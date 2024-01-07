@@ -6,6 +6,7 @@ class KidsFacilityItemModel {
   String inOutdoor;
   String latNum;
   String lngNum;
+  late String distance;
 
 //<editor-fold desc="Data Methods">
   KidsFacilityItemModel({
@@ -66,7 +67,7 @@ class KidsFacilityItemModel {
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'title': title,
       'zipNum': zipNum,
@@ -78,7 +79,7 @@ class KidsFacilityItemModel {
     };
   }
 
-  factory KidsFacilityItemModel.fromMap(Map<String, dynamic> map) {
+  factory KidsFacilityItemModel.fromJson(Map<String, dynamic> map) {
     return KidsFacilityItemModel(
       title: map['title'] as String,
       zipNum: map['zipNum'] as String,
@@ -87,6 +88,59 @@ class KidsFacilityItemModel {
       inOutdoor: map['inOutdoor'] as String,
       latNum: map['latNum'] as String,
       lngNum: map['lngNum'] as String,
+    );
+  }
+
+//</editor-fold>
+}
+
+class CountModel {
+  int totalCount;
+  int pageCount;
+
+//<editor-fold desc="Data Methods">
+  CountModel({
+    required this.totalCount,
+    required this.pageCount,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CountModel &&
+          runtimeType == other.runtimeType &&
+          totalCount == other.totalCount &&
+          pageCount == other.pageCount);
+
+  @override
+  int get hashCode => totalCount.hashCode ^ pageCount.hashCode;
+
+  @override
+  String toString() {
+    return 'CountModel{ totalCount: $totalCount, pageCount: $pageCount,}';
+  }
+
+  CountModel copyWith({
+    int? totalCount,
+    int? pageCount,
+  }) {
+    return CountModel(
+      totalCount: totalCount ?? this.totalCount,
+      pageCount: pageCount ?? this.pageCount,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'totalCount': totalCount,
+      'pageCount': pageCount,
+    };
+  }
+
+  factory CountModel.fromJson(Map<String, dynamic> map) {
+    return CountModel(
+      totalCount: map['totalCount'] as int,
+      pageCount: map['pageCount'] as int,
     );
   }
 

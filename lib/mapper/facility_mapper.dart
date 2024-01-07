@@ -1,5 +1,4 @@
 import 'package:kids_facility_search_app/dto/kids_dto.dart';
-import 'package:kids_facility_search_app/model/count_model.dart';
 import 'package:kids_facility_search_app/model/facility_model.dart';
 
 extension DtoToModel on Items {

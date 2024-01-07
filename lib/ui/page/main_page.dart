@@ -3,6 +3,7 @@ import 'package:cool_dropdown/cool_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:kids_facility_search_app/ui/widget/facility_item_card.dart';
 import 'package:kids_facility_search_app/viewmodel/kids_viewmodel.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -13,11 +14,12 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final facilityDropdownController = DropdownController();
-  final viewModel = ViewModel();
   var selected = '';
 
   @override
   Widget build(BuildContext context) {
+    final mainViewModel = context.watch<ViewModel>();
+    mainViewModel.selectList();
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -46,10 +48,10 @@ class _MainPageState extends State<MainPage> {
                         ),
                         child: CoolDropdown<String>(
                           controller: facilityDropdownController,
-                          dropdownList: viewModel.facilityDropdownItems,
+                          dropdownList: mainViewModel.facilityDropdownItems,
                           defaultItem: null,
                           onChange: (value) async {
-                            await viewModel.searchFacilities(1, value);
+                            await mainViewModel.searchFacilities(1, value);
                             selected = value;
                             facilityDropdownController.close();
                           },
@@ -102,57 +104,46 @@ class _MainPageState extends State<MainPage> {
               ),
               Expanded(
                 flex: 6,
-                child: StreamBuilder<bool>(
-                  initialData: false,
-                  stream: viewModel.loadingController,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == true) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    return Column(
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: viewModel.facilitiesResults.length,
-                            itemBuilder: (context, index) {
-                              final facilityResult =
-                                  viewModel.facilitiesResults[index];
-                              return FacilityCard(facilityItem: facilityResult);
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: mainViewModel.facilitiesResults.length,
+                        itemBuilder: (context, index) {
+                          final facilityResult =
+                          mainViewModel.facilitiesResults[index];
+                          return FacilityCard(facilityItem: facilityResult);
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: mainViewModel.totalPage,
+                        itemBuilder: (context, index) {
+                          return TextButton(
+                            onPressed: () async {
+                              await mainViewModel.searchFacilities(
+                                  index + 1, selected);
                             },
-                          ),
-                        ),
-                        Expanded(
-                          child: ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: viewModel.totalPage,
-                            itemBuilder: (context, index) {
-                              return TextButton(
-                                onPressed: () async {
-                                  await viewModel.searchFacilities(
-                                      index + 1, selected);
-                                },
-                                child: Text('${index + 1}',
-                                    style: const TextStyle(
-                                        fontSize: 18, fontFamily: 'Dohyeon')),
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Text(
-                            '검색결과: ${viewModel.totalCount}',
-                            style: const TextStyle(fontFamily: 'Dohyeon'),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                            child: Text('${index + 1}',
+                                style: const TextStyle(
+                                    fontSize: 18, fontFamily: 'Dohyeon')),
+                          );
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        '검색결과: ${mainViewModel.totalCount}',
+                        style: const TextStyle(fontFamily: 'Dohyeon'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

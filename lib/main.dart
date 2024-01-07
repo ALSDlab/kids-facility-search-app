@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:kids_facility_search_app/ui/page/main_page.dart';
+import 'package:kids_facility_search_app/viewmodel/kids_viewmodel.dart';
+import 'package:provider/provider.dart';
+
+import 'di/di_setup.dart';
 
 void main() {
+  diSetup();
   runApp(const MyApp());
 }
 
@@ -17,7 +22,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MainPage(),
+      home: ChangeNotifierProvider(
+        create: (_) => getIt<ViewModel>(),
+        child: const MainPage(),
+      ),
     );
   }
 }
