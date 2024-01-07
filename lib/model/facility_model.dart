@@ -6,7 +6,7 @@ class KidsFacilityItemModel {
   String inOutdoor;
   String latNum;
   String lngNum;
-  late String distance;
+  late num distance;
 
 //<editor-fold desc="Data Methods">
   KidsFacilityItemModel({

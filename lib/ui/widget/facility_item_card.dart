@@ -31,13 +31,18 @@ class FacilityCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${facilityItem.title} (${facilityItem.inOutdoor})',
+                Text(
+                  '${facilityItem.title} (${facilityItem.inOutdoor})',
                   style: const TextStyle(fontSize: 17, color: Colors.black),
                 ),
-                Text('[${facilityItem.zipNum}] ${facilityItem.address}',
+                Text(
+                  '[${facilityItem.zipNum}] ${facilityItem.address}',
                   style: const TextStyle(fontSize: 15, color: Colors.grey),
                 ),
-                Text(facilityItem.distance,
+                Text(
+                  (facilityItem.distance == -1)
+                      ? '위치정보 없음'
+                      : '${facilityItem.distance} km',
                   style: const TextStyle(fontSize: 15, color: Colors.black),
                 ),
               ],
